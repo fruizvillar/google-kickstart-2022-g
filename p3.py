@@ -2,6 +2,9 @@
 
 https://codingcompetitions.withgoogle.com/kickstart/round/00000000008cb2e1/0000000000c17491"""
 
+import numpy as np
+
+
 DEBUG = False
 
 
@@ -9,31 +12,28 @@ def test():
     # Read integers Rs (stone radius) and Rh (Home radius) from the standard input.
 
     len_array = int(input())
-    sum_happy_sub_arrays = 0
 
-    array_x = list(map(int, input().split()))
+    array_x = np.array(list(map(int, input().split())))
+
+    cumsums = array_x.cumsum()
 
     if DEBUG:
         print()
 
+    sum_happy_sub_arrays = 0
+
     for idx_0 in range(len_array):
-        subarray_partial_sum = 0
-        for k in range(idx_0, len_array):
-            subarray_partial_sum += array_x[k]
 
-            if subarray_partial_sum >= 0:
-                # A happy one!
+        if np.any(cumsums < 0):
+            last_happy_pos = np.argmax(cumsums < 0) - 1
+            if last_happy_pos >= 0:
+                subarray_partial_sum = sum(cumsums[:last_happy_pos+1])
                 sum_happy_sub_arrays += subarray_partial_sum
-                happy = True
-            else:
-                happy = False
+        else:
+            # all unhappy!
+            sum_happy_sub_arrays += sum(cumsums)
 
-            if DEBUG:
-                print(f'Subarray: {idx_0}-{k}. Sum={subarray_partial_sum} happy=({happy}). Acc={sum_happy_sub_arrays}.'
-                      f'  {array_x[idx_0:k+1]}')
-
-            if not happy:
-                break  # Unhappiness won't be forgotten
+        cumsums = cumsums[1:] - cumsums[0]
 
     print(sum_happy_sub_arrays)
 
